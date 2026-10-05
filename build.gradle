@@ -26,7 +26,7 @@ dependencies {
     // Source: https://mvnrepository.com/artifact/com.auth0/java-jwt
     implementation 'com.auth0:java-jwt:4.6.0'
     // Source: https://mvnrepository.com/artifact/org.springframework/spring-web
-    implementation 'org.springframework:spring-web:7.0.8'
+    implementation 'org.springframework:spring-web:7.0.9'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'

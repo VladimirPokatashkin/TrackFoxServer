@@ -4,12 +4,12 @@ import com.trackfox.server.trackfoxserver.dto.AuthResponse;
 import com.trackfox.server.trackfoxserver.dto.LoginRequest;
 import com.trackfox.server.trackfoxserver.dto.RefreshTokensResponse;
 import com.trackfox.server.trackfoxserver.dto.RegistrationRequest;
-import com.trackfox.server.trackfoxserver.entity.Token;
-import com.trackfox.server.trackfoxserver.entity.User;
 import com.trackfox.server.trackfoxserver.exception.InvalidTokenException;
 import com.trackfox.server.trackfoxserver.exception.UserExistsException;
 import com.trackfox.server.trackfoxserver.exception.UserNotFoundException;
 import com.trackfox.server.trackfoxserver.exception.WrongPasswordException;
+import com.trackfox.server.trackfoxserver.mapper.TokenMapper;
+import com.trackfox.server.trackfoxserver.mapper.UserMapper;
 import com.trackfox.server.trackfoxserver.repository.TokenRepository;
 import com.trackfox.server.trackfoxserver.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -29,6 +29,8 @@ public class AuthorizationService {
 	private UserRepository userRepository;
 	private TokenRepository tokenRepository;
 	private TokenService tokenService;
+	private UserMapper userMapper;
+	private TokenMapper tokenMapper;
 
 	public AuthResponse login(LoginRequest request) {
 		var user = userRepository
@@ -42,19 +44,14 @@ public class AuthorizationService {
 		String accessToken = tokenService.generateAccessToken(user.getId());
 		String refreshToken = tokenService.generateRefreshToken();
 
-		tokenRepository.save(new Token(
+		tokenRepository.save(tokenMapper.toEntity(
 				user,
 				sha256(refreshToken),
 				Instant.now(),
-				Instant.now().plus(60, ChronoUnit.DAYS)
-		));
-
-		return new AuthResponse(
-				user.getId(),
-				user.getName(),
-				accessToken,
-				refreshToken
+				Instant.now().plus(60, ChronoUnit.DAYS))
 		);
+
+		return userMapper.toDTO(user, accessToken, refreshToken);
 	}
 
 	public AuthResponse register(RegistrationRequest request) {
@@ -64,28 +61,19 @@ public class AuthorizationService {
 
 		var hash = BCrypt.hashpw(request.password(), BCrypt.gensalt());
 
-		var user = userRepository.save(new User(
-				request.email(),
-				request.name(),
-				hash
-		));
+		var user = userRepository.save(userMapper.fromDTO(request, hash));
 
 		String accessToken = tokenService.generateAccessToken(user.getId());
 		String refreshToken = tokenService.generateRefreshToken();
 
-		tokenRepository.save(new Token(
+		tokenRepository.save(tokenMapper.toEntity(
 				user,
 				sha256(refreshToken),
 				Instant.now(),
-				Instant.now().plus(60, ChronoUnit.DAYS)
-		));
-
-		return new AuthResponse(
-				user.getId(),
-				user.getName(),
-				accessToken,
-				refreshToken
+				Instant.now().plus(60, ChronoUnit.DAYS))
 		);
+
+		return userMapper.toDTO(user, accessToken, refreshToken);
 	}
 
 	public RefreshTokensResponse refreshTokens(String refreshToken) {
@@ -98,14 +86,14 @@ public class AuthorizationService {
 		String accessToken = tokenService.generateAccessToken(token.get().getUser().getId());
 		refreshToken = tokenService.generateRefreshToken();
 
-		tokenRepository.save(new Token(
+		tokenRepository.save(tokenMapper.toEntity(
 				token.get().getUser(),
 				sha256(refreshToken),
 				Instant.now(),
-				Instant.now().plus(60, ChronoUnit.DAYS)
-		));
+				Instant.now().plus(60, ChronoUnit.DAYS))
+		);
 
-		return new RefreshTokensResponse(refreshToken,  accessToken);
+		return tokenMapper.toDTO(refreshToken, accessToken);
 	}
 
 
