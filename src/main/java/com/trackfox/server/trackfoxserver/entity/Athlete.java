@@ -27,6 +27,9 @@ public class Athlete {
 	@Column(nullable = false)
 	private int restHR;
 
-	@Column(nullable = false)
-	private double lactateCoef;
+	public Athlete(User user, Gender gender, int restHR) {
+		this.user = user;
+		this.gender = gender;
+		this.restHR = restHR;
+	}
 }
