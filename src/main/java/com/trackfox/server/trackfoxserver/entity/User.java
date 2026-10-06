@@ -26,7 +26,7 @@ public class User {
 	private String passwordHash;
 
 
-	public  User(String email, String name, String passwordHash) {
+	public User(String email, String name, String passwordHash) {
 		this.email = email;
 		this.name = name;
 		this.passwordHash = passwordHash;
