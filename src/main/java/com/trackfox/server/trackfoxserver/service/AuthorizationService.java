@@ -1,9 +1,6 @@
 package com.trackfox.server.trackfoxserver.service;
 
-import com.trackfox.server.trackfoxserver.dto.AuthResponse;
-import com.trackfox.server.trackfoxserver.dto.LoginRequest;
-import com.trackfox.server.trackfoxserver.dto.RefreshTokensResponse;
-import com.trackfox.server.trackfoxserver.dto.RegistrationRequest;
+import com.trackfox.server.trackfoxserver.dto.*;
 import com.trackfox.server.trackfoxserver.exception.InvalidTokenException;
 import com.trackfox.server.trackfoxserver.exception.UserExistsException;
 import com.trackfox.server.trackfoxserver.exception.UserNotFoundException;
@@ -12,6 +9,7 @@ import com.trackfox.server.trackfoxserver.mapper.TokenMapper;
 import com.trackfox.server.trackfoxserver.mapper.UserMapper;
 import com.trackfox.server.trackfoxserver.repository.TokenRepository;
 import com.trackfox.server.trackfoxserver.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.HexFormat;
 
 @Service
 @AllArgsConstructor
@@ -76,15 +74,16 @@ public class AuthorizationService {
 		return userMapper.toDTO(user, accessToken, refreshToken);
 	}
 
-	public RefreshTokensResponse refreshTokens(String refreshToken) {
-		var token = tokenRepository.findByHash(sha256(refreshToken));
+	@Transactional
+	public RefreshTokensResponse refreshTokens(RefreshTokenRequest request) {
+		var token = tokenRepository.findByHash(sha256(request.token()));
 
 		if (token.isEmpty() || token.get().isExpired()) {
 			throw new InvalidTokenException("invalid token.");
 		}
 
 		String accessToken = tokenService.generateAccessToken(token.get().getUser().getId());
-		refreshToken = tokenService.generateRefreshToken();
+		String refreshToken = tokenService.generateRefreshToken();
 
 		tokenRepository.save(tokenMapper.toEntity(
 				token.get().getUser(),
@@ -93,17 +92,17 @@ public class AuthorizationService {
 				Instant.now().plus(60, ChronoUnit.DAYS))
 		);
 
+		tokenRepository.delete(token.get());
+
 		return tokenMapper.toDTO(refreshToken, accessToken);
 	}
 
 
 	private String sha256(String input) {
 		try {
-			return Arrays.toString(
-					MessageDigest
-							.getInstance("SHA-256")
-							.digest(input.getBytes(StandardCharsets.UTF_8))
-			);
+			byte[] digest = MessageDigest.getInstance("SHA-256")
+					.digest(input.getBytes(StandardCharsets.UTF_8));
+			return HexFormat.of().formatHex(digest);
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}

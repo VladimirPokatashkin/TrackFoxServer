@@ -1,10 +1,7 @@
 package com.trackfox.server.trackfoxserver.controller;
 
 
-import com.trackfox.server.trackfoxserver.dto.AuthResponse;
-import com.trackfox.server.trackfoxserver.dto.LoginRequest;
-import com.trackfox.server.trackfoxserver.dto.RefreshTokensResponse;
-import com.trackfox.server.trackfoxserver.dto.RegistrationRequest;
+import com.trackfox.server.trackfoxserver.dto.*;
 import com.trackfox.server.trackfoxserver.service.AuthorizationService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +13,8 @@ public class AuthorizationController {
 	private AuthorizationService authorizationService;
 
 	@GetMapping("refresh")
-	public RefreshTokensResponse refreshToken(@RequestParam String refreshToken) {
-		return authorizationService.refreshTokens(refreshToken);
+	public RefreshTokensResponse refreshToken(@RequestBody RefreshTokenRequest request) {
+		return authorizationService.refreshTokens(request);
 	}
 
 	@PostMapping("register")

@@ -7,6 +7,8 @@ import com.trackfox.server.trackfoxserver.service.AthleteService;
 import com.trackfox.server.trackfoxserver.service.TokenService;
 import com.trackfox.server.trackfoxserver.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,17 +16,17 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class AthleteController {
 	private AthleteService athleteService;
-	private TokenService tokenService;
 	private UserService userService;
 
-	public AthleteResponse getAthleteProfile(@RequestParam String accessToken) {
-		long userId = tokenService.getUserIdFromToken(accessToken);
+	public AthleteResponse getAthleteProfile(@AuthenticationPrincipal long userId) {
 		return athleteService.getAthleteProfile(userId);
 	}
 
 	@PostMapping("create")
-	public AthleteResponse createAthleteProfile(@RequestBody AthleteCreateRequest request, @RequestParam String accessToken) {
-		long userId = tokenService.getUserIdFromToken(accessToken);
+	public AthleteResponse createAthleteProfile(
+			@RequestBody AthleteCreateRequest request,
+			@AuthenticationPrincipal long userId
+	) {
 		return athleteService.createAthleteProfile(
 				request,
 				userService
