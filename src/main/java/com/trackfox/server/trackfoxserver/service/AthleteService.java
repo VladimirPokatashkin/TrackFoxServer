@@ -2,6 +2,7 @@ package com.trackfox.server.trackfoxserver.service;
 
 import com.trackfox.server.trackfoxserver.dto.AthleteCreateRequest;
 import com.trackfox.server.trackfoxserver.dto.AthleteResponse;
+import com.trackfox.server.trackfoxserver.entity.User;
 import com.trackfox.server.trackfoxserver.exception.AthleteNotFoundException;
 import com.trackfox.server.trackfoxserver.exception.UserNotFoundException;
 import com.trackfox.server.trackfoxserver.mapper.AthleteMapper;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class AthleteService {
 	private AthleteRepository athleteRepository;
-	private UserRepository userRepository;
 	private AthleteMapper athleteMapper;
 
 	public AthleteResponse getAthleteProfile(long userId) {
@@ -25,15 +25,12 @@ public class AthleteService {
 		);
 	}
 
-	public AthleteResponse createAthleteProfile(AthleteCreateRequest request, long userId) {
+	public AthleteResponse createAthleteProfile(AthleteCreateRequest request, User user) {
 		return athleteMapper
 				.toDto(athleteRepository.save(
-						athleteMapper.toEntity(request,
-								userRepository
-										.findById(userId)
-										.orElseThrow(()
-												->  new UserNotFoundException("user '" + userId + "' not found.")
-										)
+						athleteMapper.toEntity(
+								request,
+								user
 						)
 				)
 		);
