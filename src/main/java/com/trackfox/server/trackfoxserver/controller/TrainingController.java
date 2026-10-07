@@ -7,6 +7,7 @@ import com.trackfox.server.trackfoxserver.service.TokenService;
 import com.trackfox.server.trackfoxserver.service.TrainingService;
 import com.trackfox.server.trackfoxserver.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,23 +18,25 @@ import java.util.List;
 public class TrainingController {
 	private TrainingService trainingService;
 	private UserService userService;
-	private TokenService tokenService;
 
 
 	@PostMapping("save")
-	public TrainingDTO saveTraining(@RequestBody TrainingDTO dto, @RequestParam String accessToken) {
+	public TrainingDTO saveTraining(
+			@RequestBody TrainingDTO dto,
+			@AuthenticationPrincipal long userId
+	) {
 		return trainingService.saveTraining(dto,
 				userService
-						.getUserById(tokenService.getUserIdFromToken(accessToken))
+						.getUserById(userId)
 						.orElseThrow(() -> new UserNotFoundException("user not found"))
 		);
 	}
 
 	@GetMapping("get")
-	public List<TrainingDTO> getAllTrainings(@RequestParam String accessToken) {
+	public List<TrainingDTO> getAllTrainings(@AuthenticationPrincipal long userId) {
 		return trainingService.getAllTrainingsOfUser(
 				userService
-						.getUserById(tokenService.getUserIdFromToken(accessToken))
+						.getUserById(userId)
 						.orElseThrow(() -> new UserNotFoundException("user not found."))
 		);
 	}
