@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class AthleteService {
 	private AthleteRepository athleteRepository;
 	private AthleteMapper athleteMapper;
+	private UserService userService;
 
 	public AthleteResponse getAthleteProfile(long userId) {
 		return athleteMapper.
@@ -25,12 +26,13 @@ public class AthleteService {
 		);
 	}
 
-	public AthleteResponse createAthleteProfile(AthleteCreateRequest request, User user) {
+	public AthleteResponse createAthleteProfile(AthleteCreateRequest request, long userId) {
 		return athleteMapper
 				.toDto(athleteRepository.save(
-						athleteMapper.toEntity(
-								request,
-								user
+						athleteMapper.toEntity(request,
+								userService
+										.getUserById(userId)
+										.orElseThrow(() -> new UserNotFoundException("user '" + userId + "' not found."))
 						)
 				)
 		);

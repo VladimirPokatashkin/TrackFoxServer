@@ -2,6 +2,7 @@ package com.trackfox.server.trackfoxserver.service;
 
 import com.trackfox.server.trackfoxserver.dto.TrainingDTO;
 import com.trackfox.server.trackfoxserver.entity.User;
+import com.trackfox.server.trackfoxserver.exception.UserNotFoundException;
 import com.trackfox.server.trackfoxserver.mapper.TrainingMapper;
 import com.trackfox.server.trackfoxserver.repository.TrainingRepository;
 import lombok.AllArgsConstructor;
@@ -14,15 +15,24 @@ import java.util.List;
 public class TrainingService {
 	private TrainingRepository trainingRepository;
 	private TrainingMapper trainingMapper;
+	private UserService userService;
 
-	public TrainingDTO saveTraining(TrainingDTO dto, User user) {
+	public TrainingDTO saveTraining(TrainingDTO dto, long userId) {
 		trainingRepository.save(
-				trainingMapper.toEntity(dto, user)
+				trainingMapper.toEntity(dto,
+						userService
+								.getUserById(userId)
+								.orElseThrow(() -> new UserNotFoundException("user '" + userId + "' not found.")))
 		);
 		return dto;
 	}
 
-	public List<TrainingDTO> getAllTrainingsOfUser(User user) {
+	public List<TrainingDTO> getAllTrainingsOfUser(long userId) {
+		var user = userService
+				.getUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("user '" + userId + "' not found.")
+		);
+
 		return trainingRepository
 				.findAllByUserId(user.getId())
 				.stream()

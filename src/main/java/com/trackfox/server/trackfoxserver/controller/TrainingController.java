@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TrainingController {
 	private TrainingService trainingService;
-	private UserService userService;
 
 
 	@PostMapping("save")
@@ -25,19 +24,11 @@ public class TrainingController {
 			@RequestBody TrainingDTO dto,
 			@AuthenticationPrincipal long userId
 	) {
-		return trainingService.saveTraining(dto,
-				userService
-						.getUserById(userId)
-						.orElseThrow(() -> new UserNotFoundException("user not found"))
-		);
+		return trainingService.saveTraining(dto, userId);
 	}
 
 	@GetMapping("get")
 	public List<TrainingDTO> getAllTrainings(@AuthenticationPrincipal long userId) {
-		return trainingService.getAllTrainingsOfUser(
-				userService
-						.getUserById(userId)
-						.orElseThrow(() -> new UserNotFoundException("user not found."))
-		);
+		return trainingService.getAllTrainingsOfUser(userId);
 	}
 }

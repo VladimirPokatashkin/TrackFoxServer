@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class AthleteController {
 	private AthleteService athleteService;
-	private UserService userService;
 
 	public AthleteResponse getAthleteProfile(@AuthenticationPrincipal long userId) {
 		return athleteService.getAthleteProfile(userId);
@@ -29,9 +28,7 @@ public class AthleteController {
 	) {
 		return athleteService.createAthleteProfile(
 				request,
-				userService
-						.getUserById(userId)
-						.orElseThrow(() -> new UserNotFoundException("user '" + userId + "' not found."))
+				userId
 		);
 	}
 }
