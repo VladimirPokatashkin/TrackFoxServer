@@ -27,6 +27,14 @@ dependencies {
     implementation 'com.auth0:java-jwt:4.6.0'
     // Source: https://mvnrepository.com/artifact/org.springframework/spring-web
     implementation 'org.springframework:spring-web:7.0.9'
+    // Source: https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
+    // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+    implementation 'org.springframework.security:spring-security-core:7.2.0-M2'
+    // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-webauthn
+    implementation 'org.springframework.security:spring-security-webauthn:7.2.0-M2'
+    // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-config
+    implementation 'org.springframework.security:spring-security-config:7.2.0-M2'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.2.0-M2'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
