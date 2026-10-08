@@ -6,6 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.trackfox.server.trackfoxserver.exception.InvalidTokenException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -19,7 +20,10 @@ public class TokenService {
 	private final JWTVerifier verifier;
 
 
-	public TokenService(String issuer, String secret) {
+	public TokenService(
+			@Value("${JWT_ISSUER}") String issuer,
+			@Value("${JWT_SECRET}") String secret
+	) {
 		this.issuer = issuer;
 		algorithm = Algorithm.HMAC256(secret);
 		verifier = JWT.require(algorithm).withIssuer(issuer).build();
