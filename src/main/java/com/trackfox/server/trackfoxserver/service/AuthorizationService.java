@@ -32,8 +32,8 @@ public class AuthorizationService {
 
 	public AuthResponse login(LoginRequest request) {
 		var user = userRepository
-				.findByName(request.name())
-				.orElseThrow(() -> new UserNotFoundException("user '" + request.name() + "' not found."));
+				.findByEmail(request.email())
+				.orElseThrow(() -> new UserNotFoundException("user '" + request.email() + "' not found."));
 
 		if (!BCrypt.checkpw(request.password(), user.getPasswordHash())) {
 			throw new WrongPasswordException("wrong password.");
